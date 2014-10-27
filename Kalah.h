@@ -35,6 +35,7 @@ class Kalah{
     void AIMove();
     void CheckCapture(int pos);
     void PseudoCheckCapture(int pos, int fakeBoard[14]);
+    int PseudoCheckDefense(int fakeBoard[14]);
     int Think();
     void PostGame();
   public:

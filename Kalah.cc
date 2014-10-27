@@ -1,6 +1,6 @@
 #include "Kalah.h"
 
-// centered(string) command for pretty printing
+// centered(string) command for pretty printing, snagged from StackOverflow
 template<typename charT, typename traits = std::char_traits<charT> >
 class center_helper {
     std::basic_string<charT, traits> str_;
@@ -192,7 +192,7 @@ float Kalah::PseudoExecuteMove(int position){
   int fakeBoard[14];
   copy(begin(board), end(board), begin(fakeBoard));
   int mySeeds = fakeBoard[position];
-  if (mySeeds == 0) return -1.0;
+  if (mySeeds == 0) return -1000.0;
   fakeBoard[position] = 0;
   int j = position+1;
   for (int i = position+1; i<=mySeeds+position; i++){
@@ -205,7 +205,8 @@ float Kalah::PseudoExecuteMove(int position){
   int totalScore = fakeAiScore-aiScore;
   bool gainMove = false;
   if((j-1)%14 == 13) gainMove = true;
-  float quality = totalScore + 2*gainMove + gainMove*0.1*(position-6);
+  int undefendedSeeds = PseudoCheckDefense(fakeBoard);
+  float quality = totalScore + 2*gainMove + gainMove*0.1*(position-6) - !gainMove*undefendedSeeds*0.4;
   return quality;
 }
 
@@ -279,6 +280,17 @@ void Kalah::PseudoCheckCapture(int pos, int fakeBoard[14]){
     }
   }
 }
+
+int Kalah::PseudoCheckDefense(int fakeBoard[14]){
+  int undefendedSeeds = 0;
+  for (int i=7; i<13; i++){
+    if(fakeBoard[12-i] ==0){
+      undefendedSeeds += fakeBoard[i];
+    }
+  }
+  return undefendedSeeds;
+}
+
 
 int Kalah::Think(){
   map<float, int> possibleMoves;
